@@ -318,6 +318,14 @@ function packageImports(nodes) {
             	<font color="red">Red: parent-child; </font>
             	<font color="#CDCD00">Yellow: inter-group</font>
             </small>
+			<br\>
+			<small>
+				<font color="rgb(255, 0, 0)">Requirements</font>
+				<font color="rgb(0, 0, 255)">Functions</font>
+				<font color="rgb(57, 211, 57)">Artifacts</font>
+				<font color="rgb(255, 133, 0)">Behaviors</font>
+				<font color="rgb(36, 212, 228)">Issues</font>
+			</small>
             <!--
             <div class="navbar-search pull-right">
                 <div class="input-append">
@@ -326,7 +334,7 @@ function packageImports(nodes) {
                 </div>
             </div>
             -->
-        </h1>		
+        </h1>	
     </div>
 </div>
 <div id='tabs' class="row-fluid">
