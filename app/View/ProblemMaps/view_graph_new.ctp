@@ -303,15 +303,20 @@ function packageImports(nodes) {
 <div class="row-fluid">
     <div class="span10 offset1 page-header">
         <h1><?php echo $ProblemMap['ProblemMap']['name']; ?>
-            <small>(<?php echo $this->Html->link("view as list", array(
+            <small>(<?php echo $this->Html->link("List view", array(
                 'controller' => 'problem_maps',
                 'action' => 'view_list',
                 $ProblemMap['ProblemMap']['id']
             )); ?>)</small>
+			<small>(<?php echo $this->Html->link("Tree view", array(
+                'controller' => 'problem_maps',
+                'action' => 'view_graph',
+                $ProblemMap['ProblemMap']['id']
+            )); ?>)</small>
             <br\>
             <small>
-            	<font color="red">Red: Relations; </font>
-            	<font color="#CDCD00">Yellow: Links</font>
+            	<font color="red">Red: parent-child; </font>
+            	<font color="#CDCD00">Yellow: inter-group</font>
             </small>
             <!--
             <div class="navbar-search pull-right">
@@ -321,7 +326,7 @@ function packageImports(nodes) {
                 </div>
             </div>
             -->
-        </h1>
+        </h1>		
     </div>
 </div>
 <div id='tabs' class="row-fluid">

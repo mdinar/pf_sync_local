@@ -53,12 +53,12 @@
 <div class="row-fluid">
     <div class="span10 offset1 page-header">
         <h1><?php echo $ProblemMap['ProblemMap']['name']; ?>
-            <small>(<?php echo $this->Html->link("view as graph", array(
+            <small>(<?php echo $this->Html->link("Tree view", array(
                 'controller' => 'problem_maps',
                 'action' => 'view_graph',
                 $ProblemMap['ProblemMap']['id']
             )); ?>)</small>
-            <small>(<?php echo $this->Html->link("view as graph(mbostock view)", array(
+            <small>(<?php echo $this->Html->link("Network view", array(
                 'controller' => 'problem_maps',
                 'action' => 'view_graphNew',
                 $ProblemMap['ProblemMap']['id']
