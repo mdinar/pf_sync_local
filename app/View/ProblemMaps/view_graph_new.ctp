@@ -8,7 +8,7 @@
 <style>
 
 .node {
-  font: 300 11px "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font: 300 14px "Helvetica Neue", Helvetica, Arial, sans-serif;
   fill: #bbb;
 }
 
@@ -111,11 +111,11 @@ var link = svg.append("g").selectAll(".link"),
 
 d3.json("../../problemMapStructure.json", function(error, classes) {
   //alert(1);
-  //alert(classes);
+  //console.log(JSON.stringify(classes));
   var nodes = cluster.nodes(packageHierarchy(classes)),
       links = packageImports(nodes),
       thelinks = packageImports1(nodes);
-  //alert(nodes);
+  //console.log(JSON.stringify(links));
   //alert(links);
   link = link
       .data(bundle(links))
@@ -133,16 +133,27 @@ d3.json("../../problemMapStructure.json", function(error, classes) {
       
   node = node
       .data(nodes.filter(function(n) { return !n.children; }))
-    .enter().append("text")
+      .enter().append("text")
+	  .style("fill", function(d) { return setTextColor(d);})
       .attr("class", "node")
       .attr("dx", function(d) { return d.x < 180 ? 8 : -8; })
       .attr("dy", ".31em")
       .attr("transform", function(d) { return "rotate(" + (d.x - 90) + ")translate(" + d.y + ")" + (d.x < 180 ? "" : "rotate(180)"); })
       .style("text-anchor", function(d) { return d.x < 180 ? "start" : "end"; })
-      .text(function(d) { return d.key; })
+      .text(function(d) { return d.key })
       .on("mouseover", mouseovered)
       .on("mouseout", mouseouted);
+	  
 });
+
+// Set text color based on category
+function setTextColor(d) {
+	if (d["type"]== "requirement") return "rgb(255, 0, 0)";
+	else if (d["type"]== "function") return "rgb(0, 0, 255)";
+	else if (d["type"]== "artifact") return "rgb(57, 211, 57)";
+	else if (d["type"]== "behavior") return "rgb(255, 133, 0)";
+	else if (d["type"]== "issue") return "rgb(36, 212, 228)";
+}
 
 function mouseovered(d) {
   node
