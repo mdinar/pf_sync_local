@@ -320,11 +320,11 @@ function packageImports(nodes) {
             </small>
 			<br\>
 			<small>
-				<font color="rgb(255, 0, 0)">Requirements</font>
-				<font color="rgb(0, 0, 255)">Functions</font>
-				<font color="rgb(57, 211, 57)">Artifacts</font>
-				<font color="rgb(255, 133, 0)">Behaviors</font>
-				<font color="rgb(36, 212, 228)">Issues</font>
+				<font color="#FF0000">Requirements</font>
+				<font color="#0000FF">Functions</font>
+				<font color="#39D339">Artifacts</font>
+				<font color="#FF8500">Behaviors</font>
+				<font color="#24D4E4">Issues</font>
 			</small>
             <!--
             <div class="navbar-search pull-right">
