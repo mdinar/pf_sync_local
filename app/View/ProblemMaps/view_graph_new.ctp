@@ -72,15 +72,17 @@
   stroke: #CDCD00;
 }
 
-
-
+.page-header {
+  margin-bottom: 2px;
+  margin-top: 2px;
+}
 
 </style>
 <body>
 <script src="http://d3js.org/d3.v3.min.js"></script>
 <script>
-//d62728    2ca02c
-var diameter = 960,
+
+var diameter = 950,
     radius = diameter / 2,
     innerRadius = radius - 120;
 
@@ -98,10 +100,9 @@ var line = d3.svg.line.radial()
     .angle(function(d) { return d.x / 180 * Math.PI; });
 
 var svg = d3.select("body").append("svg")
-    .attr("width", diameter)
-    .attr("height", diameter)
-    .attr("style", "top: 150px; left: 200px; width: 1280px; height: 1280px; position: absolute;")
-    //.attr("style", "text-align:center;")
+	.attr("height", diameter)
+	.attr("width", diameter)
+    .attr("style", "margin-left: 8%;")
   	.append("g")
     .attr("transform", "translate(" + radius + "," + radius + ")");
 
@@ -110,13 +111,10 @@ var link = svg.append("g").selectAll(".link"),
     thelink = svg.append("g").selectAll(".thelink");
 
 d3.json("../../problemMapStructure.json", function(error, classes) {
-  //alert(1);
-  //console.log(JSON.stringify(classes));
   var nodes = cluster.nodes(packageHierarchy(classes)),
       links = packageImports(nodes),
       thelinks = packageImports1(nodes);
-  //console.log(JSON.stringify(links));
-  //alert(links);
+  
   link = link
       .data(bundle(links))
       .enter().append("path")
@@ -148,11 +146,11 @@ d3.json("../../problemMapStructure.json", function(error, classes) {
 
 // Set text color based on category
 function setTextColor(d) {
-	if (d["type"]== "requirement") return "rgb(255, 0, 0)";
-	else if (d["type"]== "function") return "rgb(0, 0, 255)";
-	else if (d["type"]== "artifact") return "rgb(57, 211, 57)";
-	else if (d["type"]== "behavior") return "rgb(255, 133, 0)";
-	else if (d["type"]== "issue") return "rgb(36, 212, 228)";
+	if (d["type"]== "requirement") return "#FF0000";
+	else if (d["type"]== "function") return "#0000FF";
+	else if (d["type"]== "artifact") return "#39D339";
+	else if (d["type"]== "behavior") return "#FF8500";
+	else if (d["type"]== "issue") return "#24D4E4";
 }
 
 function mouseovered(d) {
@@ -257,49 +255,6 @@ function packageImports(nodes) {
 
 </script>
 
-<script type="text/template" id="entity-template">
-<% if (num_decomps > 0 && Entity.current_decomposition == null) { %>
-    <i class="icon icon-folder-close pull-left"></i>
-<% } else if (num_decomps > 0) { %>
-    <i class="icon icon-folder-open pull-left"></i>
-<% } else { %>
-    <i class="icon icon-file pull-left"></i>
-<% } %>
-<% if (num_decomps > 1) { %>
-    <span class='sup pull-left'><%= num_decomps %></span>
-<% } else { %>
-    <span class='sup pull-left'></span>
-<% } %>
-<div class='name pull-left editable' contenteditable=false>
-    <%= Entity.name %>
-</div>
-<a class='destroy pull-right' href="#"><i class="icon-trash"></i></a>
-<div class="clear"></div>
-</script>
-
-<script type="text/template" id="entity-tab-template">
-<div class="row-fluid">
-    <h2>
-    <%= title %>
-    <a href="#" id="<%= type %>-tooltip"><i class="icon-question-sign"></i></a>
-    </h2>
-</div>
-<div class="row-fluid">
-    <div class="input-append entity-dialog">
-        <input id='new-<%= type %>' type='text' class='entity-input' 
-        placeholder='New <%= type %>'></input>
-        <button type='submit' class='btn-primary entity-input'>
-            <i class="icon-plus"></i>
-        </button>
-    </div>
-</div>
-<hr>
-<div class="row-fluid">
-    <ul id='<%= type %>' class='entity-list'>
-    </ul>
-</div>
-</script>
-
 <div class="row-fluid">
     <div class="span10 offset1 page-header">
         <h1><?php echo $ProblemMap['ProblemMap']['name']; ?>
@@ -313,47 +268,22 @@ function packageImports(nodes) {
                 'action' => 'view_graph',
                 $ProblemMap['ProblemMap']['id']
             )); ?>)</small>
-            <br\>
-            <small>
-            	<font color="red">Red: parent-child; </font>
-            	<font color="#CDCD00">Yellow: inter-group</font>
-            </small>
-			<br\>
+		</h1>
+		<div class="color-code">
 			<small>
-				<font color="rgb(255, 0, 0)">Requirements</font>
-				<font color="rgb(0, 0, 255)">Functions</font>
-				<font color="rgb(57, 211, 57)">Artifacts</font>
-				<font color="rgb(255, 133, 0)">Behaviors</font>
-				<font color="rgb(36, 212, 228)">Issues</font>
+				<u>Color Code</u>: &nbsp;
+				<font><span style="display: inline-block; padding: 5px; background: #FF0000; margin-right: 5px;"></span>Requirements</font> | 
+				<font><span style="display: inline-block; padding: 5px; background: #0000FF; margin-right: 5px;"></span>Functions</font> | 
+				<font><span style="display: inline-block; padding: 5px; background: #39D339; margin-right: 5px;"></span>Artifacts</font> | 
+				<font><span style="display: inline-block; padding: 5px; background: #FF8500; margin-right: 5px;"></span>Behaviors</font> | 
+				<font><span style="display: inline-block; padding: 5px; background: #24D4E4; margin-right: 5px;"></span>Issues</font>
 			</small>
-            <!--
-            <div class="navbar-search pull-right">
-                <div class="input-append">
-                    <input type="text" class="search-query" placeholder="Search entities">
-                    <span class="forsearch"><i class='icon-search'></i></span>
-                </div>
-            </div>
-            -->
-        </h1>	
+			<span style="display: inline-block; width: 25px;"></span>
+			<small>
+				<u>Relationship</u>: &nbsp;
+            	<font><span style="display: inline-block; padding: 2px 25px; margin-right: 5px;border-top: 2px solid #FF0000;"></span> Parent-Child </font> | 
+            	<font><span style="display: inline-block; padding: 2px 25px; margin-right: 5px;border-top: 2px solid #CDCD00;"></span> Inter-Group</font>
+            </small>
+		</div>
     </div>
-</div>
-<div id='tabs' class="row-fluid">
-</div>
-
-<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-  <div class="modal-header">
-    <button type="button" class="close" data-dismiss="modal"
-        aria-hidden="true">x</button>
-    <h3 id="myModalLabel">Which decomposition?</h3>
-  </div>
-  <div class="modal-body temp-decomps">
-  </div>
-  <div class="modal-footer">
-    <button class="btn" data-dismiss="modal" aria-hidden="true">Cancel</button>
-  </div>
-</div>
-
-<div id="context-menu">
-    <ul class="dropdown-menu" role="menu">
-    </ul>
 </div>
