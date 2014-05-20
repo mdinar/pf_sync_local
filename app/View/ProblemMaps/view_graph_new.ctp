@@ -271,20 +271,12 @@ function packageImports(nodes) {
 		</h1>
 		<div class="color-code">
 			<small>
-<<<<<<< HEAD
-				<font color="#FF0000">Requirements</font>
-				<font color="#0000FF">Functions</font>
-				<font color="#39D339">Artifacts</font>
-				<font color="#FF8500">Behaviors</font>
-				<font color="#24D4E4">Issues</font>
-=======
 				<u>Color Code</u>: &nbsp;
 				<font><span style="display: inline-block; padding: 5px; background: #FF0000; margin-right: 5px;"></span>Requirements</font> | 
 				<font><span style="display: inline-block; padding: 5px; background: #0000FF; margin-right: 5px;"></span>Functions</font> | 
 				<font><span style="display: inline-block; padding: 5px; background: #39D339; margin-right: 5px;"></span>Artifacts</font> | 
 				<font><span style="display: inline-block; padding: 5px; background: #FF8500; margin-right: 5px;"></span>Behaviors</font> | 
 				<font><span style="display: inline-block; padding: 5px; background: #24D4E4; margin-right: 5px;"></span>Issues</font>
->>>>>>> 2545c52603427c96e08bf95fcb4ded4d04c2802e
 			</small>
 			<span style="display: inline-block; width: 25px;"></span>
 			<small>
