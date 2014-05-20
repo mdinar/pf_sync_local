@@ -271,7 +271,7 @@ function packageImports(nodes) {
 		</h1>
 		<div class="color-code">
 			<small>
-				<u>Color Code</u>: &nbsp;
+				<u>Entities</u>: &nbsp;
 				<font><span style="display: inline-block; padding: 5px; background: #FF0000; margin-right: 5px;"></span>Requirements</font> | 
 				<font><span style="display: inline-block; padding: 5px; background: #0000FF; margin-right: 5px;"></span>Functions</font> | 
 				<font><span style="display: inline-block; padding: 5px; background: #39D339; margin-right: 5px;"></span>Artifacts</font> | 
