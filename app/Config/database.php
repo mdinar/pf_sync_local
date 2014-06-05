@@ -59,9 +59,9 @@ class DATABASE_CONFIG {
 		'datasource' => 'Database/Mysql',
 		'persistent' => false,
 		'host' => 'localhost',
-		'login' => 'root',
-		'password' => '',
-		'database' => 'problemformulator',
+		'login' => 'ideation_root',
+		'password' => 'RN0zwwJt',
+		'database' => 'ideation_problemformulator',
 		'prefix' => '',
 		//'encoding' => 'utf8',
 	);
