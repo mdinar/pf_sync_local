@@ -1,6 +1,7 @@
 <!-- File: /app/View/ProblemMaps/index.ctp -->
 <?php
 $this->Html->css('index-pmap', null, array('inline' => false));
+//echo $admin;
 ?>
 
 <div class="page-header text-center">
@@ -14,7 +15,10 @@ $this->Html->css('index-pmap', null, array('inline' => false));
     <thead>
         <tr>
             <th>Id</th>
-            <th>Owner</th>
+			<?php 
+			if($admin)
+				echo "<th>Owner Id</th>";
+			?>
             <th>Name</th>
             <th>Description</th>
             <th>Actions</th>
@@ -28,30 +32,36 @@ $this->Html->css('index-pmap', null, array('inline' => false));
         <?php foreach ($ProblemMaps as $problem_map): ?>
         <tr>
             <td><?php echo $problem_map['ProblemMap']['id']; ?></td>
-            <td><?php echo $problem_map['User']['firstname'] . ' ' . $problem_map['User']['lastname']; ?>
-            <td>
+			<!-- Replaced with Owner Id
+				<td><?php echo $problem_map['User']['firstname'] . ' ' . $problem_map['User']['lastname']; ?>  
+			-->
+			<?php 
+				if($admin)
+					echo "<td>".$problem_map['User']['id']."</td>";
+			?>
+			<td>
                 <?php echo $this->Html->link($problem_map['ProblemMap']['name'], array(
-        'controller' => 'problem_maps',
-        'action' => 'view_list',
-        $problem_map['ProblemMap']['id']
-    )); ?>
+					'controller' => 'problem_maps',
+					'action' => 'view_list',
+					$problem_map['ProblemMap']['id']
+				)); ?>
             </td>
             <td><?php echo $problem_map['ProblemMap']['description']; ?></td>
-            <td>
-            <?php echo $this->Html->link('Edit', array(
-        'action' => 'edit',
-        $problem_map['ProblemMap']['id']
-    )); ?>
-<!---
-            <?php echo $this->Form->postLink('Delete', array(
-        'action' => 'delete',
-        $problem_map['ProblemMap']['id']
-    ) , array(
-        'confirm' => 'Are you sure?'
-    ));
-?>
---->
-            </td>
+			<td>
+			<?php echo $this->Html->link('Edit', array(
+				'action' => 'edit',
+				$problem_map['ProblemMap']['id']
+			)); ?>
+			<!---
+				<?php echo $this->Form->postLink('Delete', array(
+						'action' => 'delete',
+						$problem_map['ProblemMap']['id']
+					) , array(
+						'confirm' => 'Are you sure?'
+					));
+				?>
+			--->
+			</td>
             <td><?php echo $problem_map['ProblemMap']['created']; ?></td>
         </tr>
         <?php
