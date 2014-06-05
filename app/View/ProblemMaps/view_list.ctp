@@ -22,7 +22,7 @@
 <div class='name pull-left editable' contenteditable=false>
     <%= Entity.name %>
 </div>
-<a class='destroy pull-right' href="#"><i class="icon-trash"></i></a>
+<a class='destroy pull-right' href="#">X</a>
 <div class="clear"></div>
 </script>
 
