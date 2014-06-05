@@ -76,4 +76,21 @@ class DATABASE_CONFIG {
 		'prefix' => '',
 		//'encoding' => 'utf8',
 	);
+	
+		
+	protected $_conn = null;
+	
+	public function getConnection() {
+	        if (is_null($this->_conn)) {
+	            $db = $this->default;
+	            $this->_conn = mysql_connect($db['host'], $db['login'], $db['password']);
+	            if(!$this->_conn) {
+	                die("Cannot connect to database server"); 
+	            }
+	            if(!mysql_select_db($db['database'])) {
+	                die("Cannot select database");
+	            }
+	        }
+	        return $this->_conn;
+	 }
 }
