@@ -1,5 +1,6 @@
 <?php
 App::uses('File', 'Utility');
+require_once("../Config/database.php");
 
 // Controller/ProblemMapsController.php
 class ProblemMapRank {
@@ -139,13 +140,13 @@ class ProblemMapsController extends AppController {
     // list all the problem maps
     public function index() {
 
-        // if user find all problem maps
-
+        // if admin find all problem maps
         if ($this->Auth->user('admin') == 1) {
+			$this->set("admin",1);
             $ProblemMaps = $this->ProblemMap->find('all', array('recursive' => 0));
         }
         else {
-
+			$this->set("admin",0);
             // get all the problem maps belonging to the user
             $ProblemMaps = $this->ProblemMap->find('all', array(
                 'conditions' => array(
@@ -195,8 +196,13 @@ class ProblemMapsController extends AppController {
 		//For nodes and children
 		$array = array();
 		$return_arr = array();
-		$conn=mysql_connect("localhost","ideation_root","RN0zwwJt");
-		$select=mysql_select_db("ideation_problemformulator",$conn);
+		
+		//$conn=mysql_connect("localhost","root","root");
+		//$select=mysql_select_db("problemformulator",$conn);
+		
+		$dbclass = new DATABASE_CONFIG;
+		$conn = $dbclass->getConnection();
+		
 		//Requirements----------------
 		$fetch1 = mysql_query("SELECT * FROM `entities` where problem_map_id = $id and type = 'requirement'"); 
 		while ($row = mysql_fetch_array($fetch1, MYSQL_ASSOC)) {
@@ -309,10 +315,7 @@ class ProblemMapsController extends AppController {
          $this->set('_serialize', array(
              'ProblemMap'
          ));
-        
-        
     }
-	
 		
 	public function view_predicate($id) {
 
@@ -345,7 +348,6 @@ class ProblemMapsController extends AppController {
 
     public function view($id) {
 
-
         // retrieve the problem map and set it to a variable accessible in the view
         $ProblemMap = $this->ProblemMap->findById($id);
         $this->set(compact('ProblemMap'));
@@ -355,6 +357,7 @@ class ProblemMapsController extends AppController {
             'ProblemMap'
         ));
     }
+
     public function view_log($id) {
 
         // retrieve the problem map log entries and set it to a variable accessible in the view
@@ -370,6 +373,7 @@ class ProblemMapsController extends AppController {
             'Log'
         ));
     }
+
     public function add() {
 		$this->Session->setFlash('.....');
         $error = false;
