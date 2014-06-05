@@ -141,17 +141,31 @@ function getChildrenEntities(entityType, id){
                 var data = {}
                 data['name'] = element.get('name');
                 data['children'] = getChildrenDecomps(entityType, element.id);
+				/*
+				if(data['children'].length) {
+					var child = data['children'][0];
+					data['children'] = child['children'];
+				}
+				*/
                 children.push(data);
         });
-    }
-    else{
+    } else {
         Entities.where({type: entityType, decomposition_id: id}).forEach(function(element){
                 var data = {}
                 //data['name'] = "<div style='width:100px'>" + element.get('name') + "</div>";
-		//data['name'] = "this is a test of a long entity\n I'm not sure if the new lines work\n We shall see.";
+				//data['name'] = "this is a test of a long entity\n I'm not sure if the new lines work\n We shall see.";
                 data['name'] = element.get('name');
                 data['children'] = getChildrenDecomps(entityType, element.id);
-                children.push(data);
+				
+				//console.log(JSON.stringify(data)+" count:"+data['children'].length);
+				/*
+				if(data['children'].length) {
+					var child = data['children'][0];
+					data['children'] = child['children'];
+				}
+				*/
+                
+				children.push(data);
         });
     }
 
@@ -164,20 +178,33 @@ function getChildrenDecomps(entityType, id){
 
     Decompositions.where({entity_id: id}).forEach(function(element){
         var data = {}
-        data['name'] = 'Decomp' + element.get('id');
+        
+		data['name'] = 'Decomp' + element.get('id');
         data['children'] = getChildrenEntities(entityType, element.get('id'));
-        children.push(data);
+		
+		// if(data['children'].length == 1) {
+			// var child = data['children'][0];
+			// data['children'] = child['children'];
+		// }
+		/*
+		if(data['children'].length > 1)
+			data['name'] = 'OR';
+		else
+			data['name'] = 'AND';
+		*/
+        
+		children.push(data);
     });
 
     return children;
 }
 
 function collapse(d) {
-		if (d.children) {
-		  d._children = d.children;
-		  d._children.forEach(collapse);
-		  d.children = null;
-		}
+	if (d.children) {
+	  d._children = d.children;
+	  d._children.forEach(collapse);
+	  d.children = null;
+	}
 }
 
 function collapsibleTree(type){
@@ -186,6 +213,9 @@ function collapsibleTree(type){
 	data['name'] = type + "s";
 	data['children'] = getChildrenEntities(type);
 
+	// for(var d in data) {
+		// console.log(d, data[d]);
+	// }
 	//console.log(JSON.stringify(data));
 	//console.log(data);
 
@@ -193,8 +223,7 @@ function collapsibleTree(type){
 	var width = 350 + Entities.where({type: type}).length * 200;
 	var height = Entities.where({type: type}).length * 20;
 
-	tree = d3.layout.tree()
-	.size([height, width]);
+	tree = d3.layout.tree().size([height, width]);
 
 	diagonal = d3.svg.diagonal()
 	.projection(function(d) { return [d.y, d.x]; });
@@ -209,7 +238,7 @@ function collapsibleTree(type){
 	root[type] = data;
 	root[type].x0 = height / 2;
 	root[type].y0 = 0;
-
+	
 	update(root[type], type);
 
 	d3.select(self.frameElement).style("height", "800px");
@@ -237,27 +266,29 @@ function update(source,type) {
   // Enter any new nodes at the parent's previous position.
   var nodeEnter = node.enter().append("g")
       .attr("class", "node")
-      .attr("transform", function(d) { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+      .attr("transform", function(d) {return "translate(" + source.y0 + "," + source.x0 + ")"; })
       .on('click', click);
-
+	  
   nodeEnter.append("circle")
       .attr("r", 1e-6)
       .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
-  // nodeEnter.append("text")
-      // .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
-      // .attr("dy", ".35em")
-      // .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-      // .text(function(d) { return d.name; })
-      // .style("fill-opacity", 1e-6);
-	
-	nodeEnter.append("text")
-      .attr("x", 7)
-      .attr("dy", 5)
-      .attr("text-anchor", "start")
-      .attr("font-weight", "bold")
+	//var counter = 0;
+  nodeEnter.append("text")
+      .attr("x", function(d) { return d.children || d._children ? -10 : 10; })
+      .attr("dy", ".35em")
+      .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
       .text(function(d) { return d.name; })
-      .style("fill-opacity", 1e-6);
+      .style("fill-opacity", 1e-6)
+	  .attr("font-weight", "bold");
+	
+	// nodeEnter.append("text")
+		// .attr("x", 7)
+		// .attr("dy", 5)
+		// .attr("text-anchor", "start")
+		// .attr("font-weight", "bold")
+		// .text(function(d) { return d.name; })
+		// .style("fill-opacity", 1e-6);
 
   // Transition nodes to their new position.
   var nodeUpdate = node.transition()
@@ -287,13 +318,24 @@ function update(source,type) {
   var link = svg[type].selectAll("path.link")
       .data(links, function(d) { return d.target.id; });
 
+	  // var link_attr;
+	   var counter = 0;
   // Enter any new links at the parent's previous position.
   link.enter().insert("path", "g")
       .attr("class", "link")
       .attr("d", function(d) {
         var o = {x: source.x0, y: source.y0};
+		//console.log(this);
+		// console.log(source.children[counter]);
+		// counter++;
         return diagonal({source: o, target: o});
-      });
+      }).attr("stroke", "#ccc");
+	  
+	  // .attr("type", function(t){
+		// counter++;
+		// link_attr = type+"_"+counter;
+		// return link_attr;
+	  // });
 
   // Transition links to their new position.
   link.transition()
@@ -315,6 +357,7 @@ function update(source,type) {
     d.y0 = d.y;
   });
   inc = 0;
+  //pathstroke();
 }
 
 // Toggle children on click.
@@ -331,6 +374,8 @@ function click(d) {
   var type = $(this).parents('svg').attr('type');
   //console.log(this.parentNode('svg'));
   update(d, type);
+  setTimeout(function(){pathstroke();},800);
+  
 }
 
 // Old view - Change made by Pradeep
@@ -420,8 +465,10 @@ Links.fetch().done(function() {
 		collapsibleTree('behavior');            
 		
 		$('#tabs').append("<div id='issue' class='headline'><div class='headline-in'><h4>Issues</h4><a href='javascript:void(0);' id='toggle' onclick='toggleBlind(this);'>Click</a></div></div>");
-		collapsibleTree('issue');            
+		collapsibleTree('issue');
 
+		setTimeout(function(){pathstroke();},800);
+		
 /*
             // use the stuff here?
             var space = Entities.length * 50;
@@ -461,7 +508,7 @@ Links.fetch().done(function() {
             });
 */
 
-        });    
+        });  
     });
 });
 
@@ -525,4 +572,25 @@ $('.search-query').typeahead({
 function toggleBlind(a) {
 	$(a).parents('.headline').children('svg').toggle('blind');
 	$(a).toggleClass("plus");
+}
+
+function pathstroke(){
+
+	var str1, sp1, sp2, len;
+	
+	$("text").each(function(){ 
+	   var str2 = $(this).text(); 
+	   if(str2.search("Decomp") > -1) {
+			str2 = $(this).parent().attr('transform').replace('translate(','').split(',');
+			//$(this).text('or');
+			$("path").each(function(){
+				str1 = $(this).attr("d");
+				sp1 = str1.split(" ");
+				len = sp1.length;
+				sp2 = sp1[len-1].split(",");
+				if(str2[0] == sp2[0])
+					$(this).attr("stroke-dasharray", 10).attr("stroke","#FA8072");
+			});
+		} 
+	});
 }
