@@ -29,19 +29,19 @@ function trim (str) {
 $(function(){
     var url = window.location.pathname 
 
-    if (window.location.pathname.split('/')[1] != 'problem_maps'){
-	subdirectory =  '/' + window.location.pathname.split('/')[1];
-    }
-    console.log(subdirectory);
+    if (window.location.pathname.split('/')[1] != 'problem_maps')
+		subdirectory =  '/' + window.location.pathname.split('/')[1];
+
+    //console.log(subdirectory);
     var pMapId = url.substr(url.lastIndexOf('/') + 1);
 
 /* Models */
 var Entity = Backbone.Model.extend({
     url: function(){
         if (this.get('id'))
-    return subdirectory + '/entities/' + this.get('id') + '.json';
+			return subdirectory + '/entities/' + this.get('id') + '.json';
         else
-    return subdirectory + '/entities.json';
+			return subdirectory + '/entities.json';
     },
     parse: function(response) {
         return response.Entity
@@ -195,7 +195,15 @@ var EntityView = Backbone.View.extend({
     trash: function(){
         if (confirm("Are you sure you want to delete this?")){
             this.removeChildFromDecomp(this.model);
-            this.model.destroy();
+            this.model.destroy({
+				wait: true,
+				error: function(model, xhr, response){
+					console.log("ERROR:");
+					console.log(model);
+					console.log(xhr);
+					console.log(response);
+				}
+			});
         }
     },
     makeEditable: function(e){
@@ -744,6 +752,7 @@ Links.fetch().done(function() {
     });
 });
 
+/*
 function outputCSV(group){
     var csvContent = "data:text/csv;charset=utf-8,";
     csvContent += "Parent" + ", ";
@@ -772,6 +781,7 @@ function outputCSV(group){
     window.open(encodedUri);
 
 }
+*/
 
 function updateSearchIcon(e){
     if($(e.target).val().length > 0){
