@@ -19,11 +19,12 @@
 <% } else { %>
     <span class='sup pull-left'></span>
 <% } %>
-<div class='name pull-left editable' contenteditable=false>
+<!--<div class='name pull-left editable' contenteditable=false>-->
+<div class='name editable' contenteditable=false>
     <%= Entity.name %>
 </div>
 <a class='destroy pull-right' href="#">X</a>
-<div class="clear"></div>
+<!--<div class="clear"></div>-->
 </script>
 
 <script type="text/template" id="entity-tab-template">
