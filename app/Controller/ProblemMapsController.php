@@ -14,7 +14,6 @@ class ProblemMapRank {
 	public $children1=array();
 }
 
-
 class ProblemMapsController extends AppController {
 
     // used for XML and JSON output
@@ -28,7 +27,6 @@ class ProblemMapsController extends AppController {
         'Decomposition',
         'LogEntry',
 		'Entity',
-		'Decomposition',
 		'EntitySubtypes',
 		'TutorialType',
 		'TutorialPrompt'
@@ -57,7 +55,6 @@ class ProblemMapsController extends AppController {
         }
 
         // The owner of a post can edit and delete it
-
         if (in_array($this->action, array(
             'view',
             'view_list',
@@ -303,7 +300,6 @@ class ProblemMapsController extends AppController {
 				$objtree_html .= "<select id='".$arr['id']."' onchange='reset_highlight(this);' style='width:auto;'>";
 				//$objtree_html .= "<option disabled> -- select -- </option>";
 				for($j = 1; $j <= $child_count ; $j++){
-					//$objtree_html .= $arr['weight_option'];
 					if($arr['weight_option'] == $j){
 						$objtree_html .= "<option value='".$j."' selected>".$j."</option>";
 					} else
@@ -353,13 +349,9 @@ class ProblemMapsController extends AppController {
 		$data['id'] = 0;
 		$data['parent_id'] = null;
 		$data['name'] = $ProblemMap['ProblemMap']['name'];
-		//array_push($data, $this->getChildrenEntities(null, $ent_arr, $dec_arr))//////////////////
 		$data['children'] = $this->getChildrenEntities(null, $ent_arr, $dec_arr);
-		//echo json_encode($data);
-		//print_r (json_encode($data));
 		
 		$treedata = json_encode($data);
-		
 		$this->set('treedata', $treedata);
 	}
 
