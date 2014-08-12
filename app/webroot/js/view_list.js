@@ -747,6 +747,10 @@ Links.fetch().done(function() {
 			subtypes = JSON.parse($('textarea#entity-subtypes').val());
 			for(var index in type_arr){
 				var entity_type = type_arr[index];
+				if(entity_type == 'function'){
+					$('select.'+entity_type+'-subtypes').attr('disabled','disabled');
+					continue ;
+				}
 				var option_html = '';
 				option_html += '<option value="">-- Select --</option>';
 				for (var index in subtypes[entity_type]) {
