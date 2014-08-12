@@ -8,11 +8,11 @@ class Entity extends AppModel {
             'className'    => 'ProblemMap'
         ),
         'Decomposition' => array(
-            'calssName' => 'Decomposition'
+            'className' => 'Decomposition'
         )
     );
 
-    //TODO for somereason one set of links is not getting deleted.
+    //TODO for some reason one set of links is not getting deleted.
     public $hasMany = array(
         'OutLinks' => array(
             'className' => 'Link',

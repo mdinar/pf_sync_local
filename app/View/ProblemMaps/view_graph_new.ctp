@@ -147,6 +147,7 @@ d3.json("../../problemMapStructure.json", function(error, classes) {
 // Set text color based on category
 function setTextColor(d) {
 	if (d["type"]== "requirement") return "#FF0000";
+	else if (d["type"]== "userscenario") return "#B80FEE";
 	else if (d["type"]== "function") return "#0000FF";
 	else if (d["type"]== "artifact") return "#39D339";
 	else if (d["type"]== "behavior") return "#FF8500";
@@ -268,11 +269,17 @@ function packageImports(nodes) {
                 'action' => 'view_graph',
                 $ProblemMap['ProblemMap']['id']
             )); ?>)</small>
+			<small>(<?php echo $this->Html->link("Objective Tree", array(
+                'controller' => 'problem_maps',
+                'action' => 'view_objtree',
+                $ProblemMap['ProblemMap']['id']
+            )); ?>)</small>
 		</h1>
 		<div class="color-code">
 			<small>
 				<u>Entities</u>: &nbsp;
 				<font><span style="display: inline-block; padding: 5px; background: #FF0000; margin-right: 5px;"></span>Requirements</font> | 
+				<font><span style="display: inline-block; padding: 5px; background: #B80FEE; margin-right: 5px;"></span>User Scenarios</font> | 
 				<font><span style="display: inline-block; padding: 5px; background: #0000FF; margin-right: 5px;"></span>Functions</font> | 
 				<font><span style="display: inline-block; padding: 5px; background: #39D339; margin-right: 5px;"></span>Artifacts</font> | 
 				<font><span style="display: inline-block; padding: 5px; background: #FF8500; margin-right: 5px;"></span>Behaviors</font> | 

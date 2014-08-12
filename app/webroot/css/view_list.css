@@ -219,3 +219,42 @@ li.placeholder {
     border-left-color: black; 
     border-right: none;
 }
+
+/*Tutorial Prompt*/
+#tutorial_prompt{
+	min-height: 100px;
+	text-align: center;
+	position: relative;
+	margin: 0 auto;
+	width: 82%;
+	color: #000000;
+	border: 2px solid #08c;
+	-moz-border-radius: 8px;
+	-webkit-border-radius: 8px;
+	font-size: medium;
+	padding: 5px 0;
+}
+#promptBox{
+	margin: 25px 0 8px;
+	color: #D00000;
+}
+#promptButton{
+	clear: both;
+	cursor: pointer;
+	width: 70px;
+	height: 30px;
+	border-radius: 4px;
+	background-color: #5CD2D2;
+	border: none;
+	text-align: center;
+	line-height: 10px;
+	color: #FFFFFF;
+	margin: 5px 50px;
+}
+#promptButton.decisionButton{
+	width: 45px;
+	margin: 5px;
+}
+#promptButton.disabled{
+	background-color: #CFCFCF;
+}

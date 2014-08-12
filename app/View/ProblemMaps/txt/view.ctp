@@ -21,7 +21,6 @@
 			/* fwrite($fh, $stringData); */
 	}
 	
-	
 	$emparr=array(""," ");
 	foreach($ProblemMap['Attributes'] as &$a) {
 		$emptydesc=$a['description'];

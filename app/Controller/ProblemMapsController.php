@@ -26,7 +26,12 @@ class ProblemMapsController extends AppController {
     public $uses = array(
         'ProblemMap',
         'Decomposition',
-        'LogEntry'
+        'LogEntry',
+		'Entity',
+		'Decomposition',
+		'EntitySubtypes',
+		'TutorialType',
+		'TutorialPrompt'
     );
 
     // determine if the file extension is prolog and if so set the appropriate layout
@@ -163,19 +168,262 @@ class ProblemMapsController extends AppController {
             'ProblemMaps'
         ));
     }
+	
     public function view_list($id) {
 
         $this->log_entry($id, "ProblemMapsController, view_list, " . $id);
 
         // retrieve the problem map and set it to a variable accessible in the view
         $ProblemMap = $this->ProblemMap->findById($id);
-        $this->set(compact('ProblemMap'));
+		
+		$this->set(compact('ProblemMap'));
 
         // this is for JSON and XML requests.
         $this->set('_serialize', array(
             'ProblemMap'
         ));
+
+		/* Entity Subtypes - Start */
+		$EntitySubtypes = $this->EntitySubtypes->find('all');
+		$Entitytypes = $this->EntitySubtypes->find('all', array('fields' => array('DISTINCT EntitySubtypes.type')));
+		$subtypes = [];
+		foreach($Entitytypes as $Entitytype){
+			$subtypes[$Entitytype['EntitySubtypes']['type']] = [];
+		}
+		foreach($EntitySubtypes as $EntitySubtype){
+			array_push($subtypes[$EntitySubtype['EntitySubtypes']['type']], $EntitySubtype['EntitySubtypes']['subtype']);
+		}
+	
+		$this->set(compact('subtypes'));
+		/* Entity Subtypes - End */
     }
+	
+	public function tutorial_prompts($step){
+		$TutorialPrompt = $this->TutorialPrompt->find('first', array('conditions' => array('TutorialPrompt.step' => $step)));
+		$this->set(compact('TutorialPrompt'));
+		
+		$neighbors = $this->TutorialPrompt->find('neighbors', array('field' => 'id', 'value' => $TutorialPrompt['TutorialPrompt']['id']));
+		
+		$prompt_html = '';
+		$prompt_html .= '<h4>'.$TutorialPrompt['TutorialType']['name'].' for Formulating a Problem</h4>';
+		//$prompt_html .= '<small><i>'.$TutorialPrompt['TutorialType']['description'].'</i></small><br><br><hr>';
+		$prompt_html .= '<div id="promptBox">';
+			$prompt_html .= '<div id="promptMsg">';
+				$prompt_html .= '<b>Step</b>: <span>'.$TutorialPrompt['TutorialPrompt']['description'].'</span>';
+				$prompt_html .=	'<br><br>';
+				
+				$prompt_html .=	'<span>';
+					if(count($neighbors['prev']))
+						$prompt_html .=	'<button id="promptButton" class="navButton" onclick="tutorial_prompt(\''.$neighbors['prev']['TutorialPrompt']['step'].'\')">Prev</button>';
+					else
+						$prompt_html .=	'<button id="promptButton" class="navButton disabled" disabled>Prev</button>';
+
+					if(count($TutorialPrompt['TutorialPrompt']['no'])){
+						$prompt_html .=	'<span>';
+							$prompt_html .=	'<button id="promptButton" class="decisionButton" onclick="tutorial_prompt(\''.$neighbors['next']['TutorialPrompt']['step'].'\')">Yes</button>';
+							$prompt_html .=	'<button id="promptButton" class="decisionButton" onclick="tutorial_prompt(\''.$TutorialPrompt['TutorialPrompt']['no'].'\')">No</button>';
+						$prompt_html .=	'</span>';
+					}
+					
+					if(count($neighbors['next']))
+						$prompt_html .=	'<button id="promptButton" class="navButton" onclick="tutorial_prompt(\''.$neighbors['next']['TutorialPrompt']['step'].'\')">Next</button>';
+					else
+						$prompt_html .=	'<button id="promptButton" class="navButton disabled" disabled>Next</button>';
+				$prompt_html .=	'</span>';
+			$prompt_html .=	'</div>';
+		$prompt_html .=	'</div>';
+		
+		echo $prompt_html;
+		$this->autoRender = false;
+	}
+	
+	/* Switch Tutorial Prompts On/Off */
+	function tutorial_switch($id, $switch_on){
+		$data = array('id'=> $id, 'tutorial_on' => $switch_on);
+		$this->ProblemMap->save($data);
+		$this->autoRender = false;
+	}
+	
+	public function view_objtree($id) {
+		$ProblemMap = $this->ProblemMap->findById($id);
+		$this->set(compact('ProblemMap'));
+		$Entities = $this->Entity->find('all', array(
+                'conditions' => array(
+                    'Entity.problem_map_id' => $id,
+                    'Entity.type' => 'requirement'
+                )
+            ));
+			
+		$Decompositions = $this->Decomposition->find('all', array(
+                'conditions' => array(
+                    'Decomposition.problem_map_id' => $id
+                )
+        ));
+		
+		$ent_arr = [];
+		$dec_arr = [];
+		foreach($Entities as $entity){
+			array_push($ent_arr, $entity['Entity']);
+		}
+		foreach($Decompositions as $decomposition){
+			array_push($dec_arr, $decomposition['Decomposition']);
+		}
+
+		$data = [];
+		$data['name'] = $ProblemMap['ProblemMap']['name'];
+		$data['children'] = $this->getChildrenEntities(null, $ent_arr, $dec_arr);
+
+		$child_count = count($data['children']);
+		if($child_count)
+			$objtree_html = $this->tree_traversal_view_objtree($data['children'], $data['name'], $child_count);
+		
+		$this->set('objtree_html', $objtree_html);
+	}
+	
+	public function tree_traversal_view_objtree($dataArr, $name, $child_count){
+		$child_arr = [];
+		$objtree_html = '';
+		$objtree_html .= "<h3 style='text-align: center;'>".$name."</h3>";
+		$objtree_html .= "<table cellpadding='5' style='width: auto; margin: 0 auto;'>";
+		
+		if (strpos($dataArr[0]['name'], 'Decomp') === FALSE)
+			$objtree_html .= "<tr><th>Name</th><th>Weight</th></tr>";
+		foreach($dataArr as $key => $arr){
+			$count = count($arr['children']);
+			if (strpos($arr['name'], 'Decomp') !== FALSE){
+				$objtree_html .= $this->tree_traversal_view_objtree($arr['children'], '<small>'.$arr['name'].'</small>', $count);
+			}
+			else {
+				if($count > 0){
+					array_push($child_arr, $key);
+				}
+				$objtree_html .= "<tr>";
+				$objtree_html .= "<td>".$arr['name']."</td><td>: <span id='".$arr['id']."'>".$arr['weight']."</span></td>";
+				$objtree_html .= "<td>";
+				$objtree_html .= "<select id='".$arr['id']."' onchange='reset_highlight(this);' style='width:auto;'>";
+				//$objtree_html .= "<option disabled> -- select -- </option>";
+				for($j = 1; $j <= $child_count ; $j++){
+					//$objtree_html .= $arr['weight_option'];
+					if($arr['weight_option'] == $j){
+						$objtree_html .= "<option value='".$j."' selected>".$j."</option>";
+					} else
+						$objtree_html .= "<option value='".$j."'>".$j."</option>";
+				}
+				$objtree_html .= "</select>";
+				$objtree_html .= "</td>";
+				$objtree_html .= "</tr>";
+			}
+		}
+		$objtree_html .= "</table>";
+		$objtree_html .= "<br>";
+		foreach($child_arr as $key){
+			$objtree_html .= $this->tree_traversal_view_objtree($dataArr[$key]['children'], $dataArr[$key]['name'], $count);
+		}
+		return $objtree_html;
+	}
+	
+	public function print_objtree($id) {
+		$ProblemMap = $this->ProblemMap->findById($id);
+		$this->set(compact('ProblemMap'));
+		$Entities = $this->Entity->find('all', array(
+                'conditions' => array(
+                    'Entity.problem_map_id' => $id,
+                    'Entity.type' => 'requirement'
+                )
+            ));
+		
+		$Decompositions = $this->Decomposition->find('all', array(
+                'conditions' => array(
+                    'Decomposition.problem_map_id' => $id
+                )
+        ));
+		
+		// print_r(json_encode($Decompositions));
+		
+		$ent_arr = [];
+		$dec_arr = [];
+		foreach($Entities as $entity){
+			array_push($ent_arr, $entity['Entity']);
+		}
+		foreach($Decompositions as $decomposition){
+			array_push($dec_arr, $decomposition['Decomposition']);
+		}
+
+		$data = [];
+		$data['id'] = 0;
+		$data['parent_id'] = null;
+		$data['name'] = $ProblemMap['ProblemMap']['name'];
+		//array_push($data, $this->getChildrenEntities(null, $ent_arr, $dec_arr))//////////////////
+		$data['children'] = $this->getChildrenEntities(null, $ent_arr, $dec_arr);
+		//echo json_encode($data);
+		//print_r (json_encode($data));
+		
+		$treedata = json_encode($data);
+		
+		$this->set('treedata', $treedata);
+	}
+
+	public function getChildrenEntities($id, $ent_arr, $dec_arr){
+		$children = [];
+			
+		if($id == null){
+			foreach($ent_arr as $ent){
+				if($ent['decomposition_id'] == null){
+					$data = [];
+					$data['id'] = $ent['id'];
+					$data['parent_id'] = 0;
+					$data['weight'] = $ent['weight'];
+					$data['weight_option'] = $ent['weight_option'];
+					$data['name'] = $ent['name'];
+					$data['children'] = $this->getChildrenDecomps($ent['id'], $ent_arr, $dec_arr);
+					array_push($children, $data);
+				}
+			}
+		} else {
+			foreach($ent_arr as $ent){
+				if($ent['decomposition_id'] == $id){
+					//echo json_encode($ent).'<br><br>';
+					$data = [];
+					$data['id'] = $ent['id'];
+					
+					foreach($dec_arr as $dec){
+						if($dec['id'] == $ent['decomposition_id'])
+							$data['parent_id'] = $dec['entity_id'];
+					}
+					
+					$data['weight'] = $ent['weight'];
+					$data['weight_option'] = $ent['weight_option'];
+					$data['name'] = $ent['name'];
+					$data['children'] = $this->getChildrenDecomps($ent['id'], $ent_arr, $dec_arr);
+					array_push($children, $data);
+				}
+			}
+		}
+		
+		return $children;
+	}
+
+	public function getChildrenDecomps($id, $ent_arr, $dec_arr){
+		//console.log("dec");
+		$children = [];
+
+		foreach($dec_arr as $dec){
+			if($dec['entity_id'] == $id){
+				$data = [];
+				$data['name'] = 'Decomp' . $dec['id'];
+				$data['children'] = $this->getChildrenEntities($dec['id'], $ent_arr, $dec_arr);
+				array_push($children, $data);
+			}
+		}
+		return $children;
+	}
+
+	public function save_objtree_weights($id, $weight, $weight_option){
+		$data = array('id'=> $id, 'weight' => $weight, 'weight_option' => $weight_option);
+		$this->Entity->save($data);
+		
+		$this->autoRender = false;
+	}
 
     public function view_graph($id) {
 
@@ -204,8 +452,20 @@ class ProblemMapsController extends AppController {
 		$conn = $dbclass->getConnection();
 		
 		//Requirements----------------
-		$fetch1 = mysql_query("SELECT * FROM `entities` where problem_map_id = $id and type = 'requirement'"); 
-		while ($row = mysql_fetch_array($fetch1, MYSQL_ASSOC)) {
+		$fetch = mysql_query("SELECT * FROM `entities` where problem_map_id = $id and type = 'requirement'"); 
+		while ($row = mysql_fetch_array($fetch, MYSQL_ASSOC)) {
+			$e = new ProblemMapRank;
+			$e->id = $row['id'];
+			$e->decomposition_id = $row['decomposition_id'];
+			$e->name = $row['name'];
+			$e->type = $row['type'];
+			$e->current_decomposition = $row['current_decomposition'];
+			$e->problem_map_id = $row['problem_map_id'];
+			$array[] = $e;
+		}
+		//User Scenario----------------
+		$fetch = mysql_query("SELECT * FROM `entities` where problem_map_id = $id and type = 'usescenario'"); 
+		while ($row = mysql_fetch_array($fetch, MYSQL_ASSOC)) {
 			$e = new ProblemMapRank;
 			$e->id = $row['id'];
 			$e->decomposition_id = $row['decomposition_id'];
@@ -216,8 +476,8 @@ class ProblemMapsController extends AppController {
 			$array[] = $e;
 		}
 		//Functions----------------
-		$fetch2 = mysql_query("SELECT * FROM `entities` where problem_map_id = $id and type = 'function'"); 
-		while ($row = mysql_fetch_array($fetch2, MYSQL_ASSOC)) {
+		$fetch = mysql_query("SELECT * FROM `entities` where problem_map_id = $id and type = 'function'"); 
+		while ($row = mysql_fetch_array($fetch, MYSQL_ASSOC)) {
 			$e = new ProblemMapRank;
 			$e->id = $row['id'];
 			$e->decomposition_id = $row['decomposition_id'];
@@ -228,8 +488,8 @@ class ProblemMapsController extends AppController {
 			$array[] = $e;
 		}
 		//Artifacts----------------
-		$fetch3 = mysql_query("SELECT * FROM `entities` where problem_map_id = $id and type = 'artifact'"); 
-		while ($row = mysql_fetch_array($fetch3, MYSQL_ASSOC)) {
+		$fetch = mysql_query("SELECT * FROM `entities` where problem_map_id = $id and type = 'artifact'"); 
+		while ($row = mysql_fetch_array($fetch, MYSQL_ASSOC)) {
 			$e = new ProblemMapRank;
 			$e->id = $row['id'];
 			$e->decomposition_id = $row['decomposition_id'];
@@ -240,8 +500,8 @@ class ProblemMapsController extends AppController {
 			$array[] = $e;
 		}
 		//Behaviors----------------
-		$fetch4 = mysql_query("SELECT * FROM `entities` where problem_map_id = $id and type = 'behavior'"); 
-		while ($row = mysql_fetch_array($fetch4, MYSQL_ASSOC)) {
+		$fetch = mysql_query("SELECT * FROM `entities` where problem_map_id = $id and type = 'behavior'"); 
+		while ($row = mysql_fetch_array($fetch, MYSQL_ASSOC)) {
 			$e = new ProblemMapRank;
 			$e->id = $row['id'];
 			$e->decomposition_id = $row['decomposition_id'];
@@ -252,8 +512,8 @@ class ProblemMapsController extends AppController {
 			$array[] = $e;
 		}
 		//Issues----------------
-		$fetch5 = mysql_query("SELECT * FROM `entities` where problem_map_id = $id and type = 'issue'"); 
-		while ($row = mysql_fetch_array($fetch5, MYSQL_ASSOC)) {
+		$fetch = mysql_query("SELECT * FROM `entities` where problem_map_id = $id and type = 'issue'"); 
+		while ($row = mysql_fetch_array($fetch, MYSQL_ASSOC)) {
 			$e = new ProblemMapRank;
 			$e->id = $row['id'];
 			$e->decomposition_id = $row['decomposition_id'];
@@ -276,15 +536,7 @@ class ProblemMapsController extends AppController {
 		    			}
 					}
     			}
-    		//echo json_encode($tmp->decomposition_id);
-    		//echo json_encode($e->current_decomposition);
-    		//echo json_encode($e->children);
     		}
-    		// print_r(" ;name up: ");
-			// echo json_encode($e->name);
-			// print_r("children: ");
-			// echo json_encode($e->children);
-			//echo json_encode($e);
 		}
 		//For links
 		$linkFetch = mysql_query("SELECT * FROM `links` where problem_map_id = $id"); 

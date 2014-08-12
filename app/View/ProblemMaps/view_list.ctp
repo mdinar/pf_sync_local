@@ -5,6 +5,7 @@
 <?php $this->Html->script('jquery-sortable.min', false); ?>
 <?php $this->Html->script('bootstrap-contextmenu', false); ?>
 <?php $this->Html->script('view_list', false); ?>
+<?php $this->Html->script('tutorial_prompts', false); ?>
 
 <script type="text/template" id="entity-template">
 <% if (num_decomps > 0 && Entity.current_decomposition == null) { %>
@@ -27,6 +28,13 @@
 <!--<div class="clear"></div>-->
 </script>
 
+
+<textarea id="entity-subtypes" style="display: none;">
+<?php echo json_encode($subtypes);?>
+</textarea>
+
+
+
 <script type="text/template" id="entity-tab-template">
 <div class="row-fluid">
     <h2>
@@ -44,6 +52,11 @@
         </button>
     </div>
 </div>
+<div class="entity-dialog">
+	<select id="entity-subtypes" class="<%= type %>-subtypes" type="<%= type %>" style="width: 100%;">
+		
+	</select>
+</div>
 <!--<hr>-->
 <div class="row-fluid">
     <ul id='<%= type %>' class='entity-list'>
@@ -54,17 +67,24 @@
 <div class="row-fluid">
     <div class="span10 offset1 page-header">
         <h1><?php echo $ProblemMap['ProblemMap']['name']; ?>
-            <small>(<?php echo $this->Html->link("Tree view", array(
+            <small>(<?php echo $this->Html->link("Tree View", array(
                 'controller' => 'problem_maps',
                 'action' => 'view_graph',
                 $ProblemMap['ProblemMap']['id']
             )); ?>)</small>
-            <small>(<?php echo $this->Html->link("Network view", array(
+            <small>(<?php echo $this->Html->link("Network View", array(
                 'controller' => 'problem_maps',
                 'action' => 'view_graphNew',
                 $ProblemMap['ProblemMap']['id']
             )); ?>)</small>
+            <small>(<?php echo $this->Html->link("Objective Tree", array(
+                'controller' => 'problem_maps',
+                'action' => 'view_objtree',
+                $ProblemMap['ProblemMap']['id']
+            )); ?>)</small>
             <div class="navbar-search pull-right">
+				<!-- Tutorial Prompt On/Off -->
+				<input id="tutorial_switch" type="checkbox" onclick="tutorial_switch(<?php echo $ProblemMap['ProblemMap']['id'];?>);" <?php if($ProblemMap['ProblemMap']['tutorial_on']) echo 'checked';?>>
                 <div class="input-append">
                     <input type="text" class="search-query" placeholder="Search entities">
                     <span class="forsearch"><i class='icon-search'></i></span>
@@ -72,6 +92,11 @@
             </div>
         </h1>
     </div>
+</div>
+<div id="prompt_container" <?php if(!$ProblemMap['ProblemMap']['tutorial_on']) echo 'style="display: none";';?>>
+	<div id="tutorial_prompt">
+	
+	</div>
 </div>
 <div id='tabs' class="row-fluid">
 </div>

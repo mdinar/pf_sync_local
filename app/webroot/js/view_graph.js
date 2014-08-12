@@ -239,15 +239,11 @@ $(function(){
 
 	/* create or update collabsible tree */
 	function update(source,type) {
-	 
 		// Compute height and width of the tree layout
 		var width = 350 + Entities.where({type: type}).length * 200;
 		var height = Entities.where({type: type}).length * 20;
 
 		tree = tree.size([height, width]);
-
-
-
 
 		// Compute the new tree layout.
 		var nodes = tree.nodes(root[type]).reverse(),
@@ -456,7 +452,11 @@ $(function(){
 			// Collabsible Tree View - Change made by Pradeep
 			$('#tabs').append("<div id='requirement' class='headline'><div class='headline-in'><h4>Requirements</h4> 	\
 								<a href='javascript:void(0);' id='toggle' onclick='toggleBlind(this);'>Click</a></div></div>");
-			collapsibleTree('requirement');            
+			collapsibleTree('requirement');
+            
+			$('#tabs').append("<div id='usescenario' class='headline'><div class='headline-in'><h4>Use Scenarios</h4> 	\
+								<a href='javascript:void(0);' id='toggle' onclick='toggleBlind(this);'>Click</a></div></div>");
+			collapsibleTree('usescenario');            
 			
 			$('#tabs').append("<div id='function' class='headline'><div class='headline-in'><h4>Functions</h4> 			\
 								<a href='javascript:void(0);' id='toggle' onclick='toggleBlind(this);'>Click</a></div></div>");

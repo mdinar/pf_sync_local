@@ -18,6 +18,7 @@ var original_container;
 var oldContainer;
 var type;
 
+var subtypes;
 /* Helper function */
 
 /* trips whitespace off beginning and end of a string */
@@ -137,8 +138,10 @@ var EntityView = Backbone.View.extend({
     template: _.template($('#entity-template').html()),
     initialize: function() {
         //this.listenTo(this.model, 'change', this.render);
+		//console.log(this.model);
+	
         this.listenTo(this.model, 'destroy', this.remove);
-
+		
         $('#context-menu').unbind();
         $(this.el).contextmenu({
             target: '#context-menu',
@@ -177,7 +180,7 @@ var EntityView = Backbone.View.extend({
 
     },
     render: function (eventName) {
-        var decomps = Decompositions.where({entity_id: this.model.get('id')});
+	    var decomps = Decompositions.where({entity_id: this.model.get('id')});
         $(this.el).attr('entity-id', this.model.get('id'))
                   .html(this.template(_.extend({}, 
                         {"num_decomps": decomps.length}, 
@@ -195,16 +198,10 @@ var EntityView = Backbone.View.extend({
     trash: function(){
         if (confirm("Are you sure you want to delete this?")){
             this.removeChildFromDecomp(this.model);
-            this.model.destroy({
-				wait: true,
-				error: function(model, xhr, response){
-					console.log("ERROR:");
-					console.log(model);
-					console.log(xhr);
-					console.log(response);
-				}
-			});
-        }
+            this.model.destroy();
+        } else {
+			return false;
+		}
     },
     makeEditable: function(e){
         e.stopPropagation();
@@ -310,6 +307,14 @@ var EntityView = Backbone.View.extend({
             from = entity1.get('id');
             to = entity2.get('id');  
         }
+        if( entity1.get('type') == 'usescenario' ) {
+            from = entity2.get('id');  
+            to = entity1.get('id');
+        }
+        else if( entity2.get('type') == 'usescenario' ) {
+            from = entity1.get('id');
+            to = entity2.get('id');  
+        }
         else if( entity1.get('type') == 'function' ) {
             from = entity2.get('id');  
             to = entity1.get('id');
@@ -402,7 +407,7 @@ var EntityView = Backbone.View.extend({
             p_model = Entities.findWhere({id: parent_decomp.get('entity_id')});
             child_entities = Entities.where({decomposition_id: parent_decomp.get('id')});
             child_decomps = Decompositions.where({entity_id: parent_decomp.get('entity_id')});
-                
+
             if (child_entities.length == 1) { 
                 p_model.set('current_decomposition', null);
                 p_model.save();
@@ -491,6 +496,11 @@ var EntityView = Backbone.View.extend({
             Req.render();
             Req.addAll();
         }
+        if (this.model.get('type') == 'usescenario'){
+            $(Usr.el).empty();
+            Usr.render();
+            Usr.addAll();
+        }
         if (this.model.get('type') == 'function'){
             $(Fun.el).empty();
             Fun.render();
@@ -542,8 +552,6 @@ var EntityView = Backbone.View.extend({
                 }, this);
             }, this);
         }
-
-
     }
 });
 
@@ -571,13 +579,25 @@ var EntityListView = Backbone.View.extend({
     template: _.template($('#entity-tab-template').html()),
     initialize: function(options){
         this.type = options.type;
-        if (this.type == 'requirement')
-            $(this.el).addClass('offset1');
-        this.title = this.type.charAt(0).toUpperCase() + this.type.slice(1) + 's';
+		type = options.type;
+		//console.log(type);
+        // if (this.type == 'requirement')
+            // $(this.el).addClass('offset1');
+		if(this.type!='usescenario')
+			this.title = this.type.charAt(0).toUpperCase() + this.type.slice(1) + 's';
+		else
+			this.title = 'Use Scenario';
+			
         this.listenTo(Entities, 'add', this.addOne);
         this.listenTo(Entities, 'reset', this.addAll);
-    },
+		
+		//console.log(type);
+		
+		// })
+		
+	},
     render: function(){
+		
         $(this.el).attr('id', this.type + 's-tab')
             .html(this.template({type: this.type,
                                  title: this.title}));
@@ -604,6 +624,7 @@ var EntityListView = Backbone.View.extend({
             afterMove: function($placeholder, container) {
                 $($placeholder)
                     .removeClass('requirement')
+                    .removeClass('usescenario')
                     .removeClass('function')
                     .removeClass('artifact')
                     .removeClass('behavior')
@@ -675,11 +696,17 @@ var EntityListView = Backbone.View.extend({
     },
     newEntity: function(e){
         if(!this.input.val()) return;
+		var sub_type = $('select.'+this.type+'-subtypes').val();
+		
         Entities.create({name: this.input.val(), 
             type: this.type, 
+			subtype: sub_type,
             problem_map_id: pMapId}, 
             {wait: true});
         this.input.val('');
+		
+		/* Tutorial Prompt */
+		//$("#promptMsg, #promptNext").slideToggle( 'slow');
     },
     keyPress: function(e){
         if (e.keyCode != 13) return;
@@ -694,6 +721,7 @@ Links.fetch().done(function() {
 
             /* Construct the views */
             Req = new EntityListView({type: 'requirement'});
+            Usr = new EntityListView({type: 'usescenario'});
             Fun = new EntityListView({type: 'function'});
             Art = new EntityListView({type: 'artifact'});
             Beh = new EntityListView({type: 'behavior'});
@@ -701,15 +729,40 @@ Links.fetch().done(function() {
             
             /* Load all the tabs */
             $('#tabs').append(Req.render().el);
+            $('#tabs').append(Usr.render().el);
             $('#tabs').append(Fun.render().el);
             $('#tabs').append(Art.render().el);
             $('#tabs').append(Beh.render().el);
             $('#tabs').append(Iss.render().el);
 
+			/* Display Entity Subtypes - Start */
+			var type_arr = [];
+			type_arr.push(Req.type);
+			type_arr.push(Usr.type);
+			type_arr.push(Fun.type);
+			type_arr.push(Art.type);
+			type_arr.push(Beh.type);
+			type_arr.push(Iss.type);
+			
+			subtypes = JSON.parse($('textarea#entity-subtypes').val());
+			for(var index in type_arr){
+				var entity_type = type_arr[index];
+				var option_html = '';
+				option_html += '<option value="">-- Select --</option>';
+				for (var index in subtypes[entity_type]) {
+					option_html += '<option value="'+subtypes[entity_type][index]+'">'+subtypes[entity_type][index]+'</option>'
+				}
+				$('select.'+entity_type+'-subtypes').html(option_html);
+			}
+			/* Display Entity Subtypes - End */
+			
             /* Load the tooltips */ 
             $('#requirement-tooltip').tooltip({
                 html: true,
                 title: "Requirement are the objectives, goals, and constraints that must be addressed in the final design. There may be both functional and structural requirements (e.g., must allow contact info to be stored). "});
+            $('#usescenario-tooltip').tooltip({
+                html: true,
+                title: "Use Scenario."});
             $('#function-tooltip').tooltip({
                 html: true,
                 title: "Functions are the actions and procedures of the design. Usually these contain a verb (e.g., create contact)."});
@@ -744,6 +797,7 @@ Links.fetch().done(function() {
 
             /* load all the entities */
             Req.addAll();
+            Usr.addAll();
             Fun.addAll();
             Art.addAll();
             Beh.addAll();
@@ -837,6 +891,5 @@ $('.search-query').typeahead({
         return Entities.pluck('name');
     }
 });
-
 
 });
