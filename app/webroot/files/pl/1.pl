@@ -1,0 +1,16 @@
+requirement(1).
+requirement(2).
+function(3).
+artifact(4).
+function(8).
+decomposes(2,8).
+function(9).
+decomposes(2,9).
+function(10).
+decomposes(3,10).
+satisfies(3,2).
+satisfies(3,1).
+realizes(4,3).
+realizes(4,8).
+decomposition(2,3).
+decomposition(3,3).

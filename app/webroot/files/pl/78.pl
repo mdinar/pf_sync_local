@@ -1,0 +1,14 @@
+function(2821).
+decomposes(1053,2821).
+function(2827).
+decomposes(1056,2827).
+function(2828).
+decomposes(1056,2828).
+function(2830).
+decomposes(1056,2830).
+function(2833).
+decomposes(1060,2833).
+function(2834).
+decomposes(1060,2834).
+function(2835).
+decomposes(1060,2835).

@@ -1,0 +1,12 @@
+requirement(2460).
+function(2467).
+function(2470).
+requirement(2493).
+decomposes(943,2493).
+requirement(2599).
+decomposes(943,2599).
+requirement(2604).
+decomposes(943,2604).
+satisfies(2467,2599).
+satisfies(2470,2604).
+decomposition(943,2460).

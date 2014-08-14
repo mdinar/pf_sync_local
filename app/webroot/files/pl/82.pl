@@ -1,0 +1,15 @@
+requirement(2990).
+requirement(2997).
+requirement(3885).
+requirement(3886).
+requirement(3887).
+requirement(3888).
+function(3889).
+function(3890).
+function(3891).
+function(3892).
+decomposes(null,3892).
+satisfies(3889,3885).
+satisfies(3890,3885).
+satisfies(3891,3885).
+satisfies(3892,3885).

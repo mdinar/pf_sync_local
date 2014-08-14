@@ -1,0 +1,12 @@
+requirement(5).
+function(6).
+function(7).
+decomposes(1,7).
+artifact(8).
+function(166).
+decomposes(1,166).
+requirement(4049).
+satisfies(6,5).
+fulfills(8,5).
+fulfills(8,4049).
+decomposition(1,6).

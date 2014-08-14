@@ -1,0 +1,17 @@
+requirement(3575).
+requirement(3579).
+requirement(3587).
+function(3608).
+function(3610).
+requirement(3611).
+requirement(3619).
+artifact(3620).
+behavior(3621).
+issue(3622).
+requirement(3623).
+requirement(3638).
+requirement(3672).
+requirement(3681).
+realizes(3620,3610).
+parameterizes(3621,3620).
+is_related_to(3622,3621).
